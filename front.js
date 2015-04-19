@@ -22,9 +22,9 @@ function buildPage(){
 	var autoReplyClose = '<input type="button" class="input_submit au2" value="Reply From list & Close" style="margin-left:10px;">'
 
 	$(".ipsBox_withphoto.clearfix").each(function(){
-		$(autoMsg).insertBefore($(this).children("#ips_fastReplyForm").children("#fast_reply_controls"));
-		$(autoReply).insertBefore($(this).children("#ips_fastReplyForm").children("#fast_reply_controls"));
-		$(autoReplyClose).insertBefore($(this).children("#ips_fastReplyForm").children("#fast_reply_controls"));
+		$(autoMsg).insertBefore($(this).children(".ipsBox_withphoto form").children("fieldset"));
+		$(autoReply).insertBefore($(this).children(".ipsBox_withphoto form").children("fieldset"));
+		$(autoReplyClose).insertBefore($(this).children(".ipsBox_withphoto form").children("fieldset"));
 		
 		$(".au0").click(function(){
 			chrome.runtime.sendMessage({action: "getLocalMessages"}, function(response) {
@@ -120,7 +120,7 @@ var msgTitle = '<div class="msgTitle"><h3></h3></div>';
 function showDialog(type){	
 	
 	$("#ipbwrapper").addClass("fogBitch");
-	var optionsPage = '<div class="selectListBox" id="helperBox" style="width:'+document.getElementById("ips_fastReplyForm").offsetWidth+'px;"><div class="helperTop" style="padding: 10px;"><h3>Bot Of Legends Helper</h3></div><hr style="display:block;margin:0px;"><div class="savedContents"><div class="msgList"></div><div class="msgContent" id="msgContent"></div></div><div class="helperBottom"><input id="addFromList" type="button" value="Add Message" class="input_submit"><input id="cancelFromList" type="button" value="Cancel" class="input_submit alt" style="margin-left: 10px;"></div><input type="button" id="delMsg" class="removeButton input_submit alt" value="Delete Message"></div>';
+	var optionsPage = '<div class="selectListBox" id="helperBox" style="width:'+document.getElementsByClassName("ipsBox_withphoto clearfix")[0].getElementsByTagName("form")[0].offsetWidth+'px;"><div class="helperTop" style="padding: 10px;"><h3>Bot Of Legends Helper</h3></div><hr style="display:block;margin:0px;"><div class="savedContents"><div class="msgList"></div><div class="msgContent" id="msgContent"></div></div><div class="helperBottom"><input id="addFromList" type="button" value="Add Message" class="input_submit"><input id="cancelFromList" type="button" value="Cancel" class="input_submit alt" style="margin-left: 10px;"></div><input type="button" id="delMsg" class="removeButton input_submit alt" value="Delete Message"></div>';
 	$("body").append(optionsPage);
 	$("#helperBox").center();
 

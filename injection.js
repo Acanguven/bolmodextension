@@ -22,7 +22,7 @@ window.addEventListener("cktunnelFillSend", function(evt) {
 	if(editor){
 		editor.setData(evt.detail)
 		CKupdate();
-		document.getElementById("fast_reply_controls").firstChild.nextSibling.click();
+		document.getElementsByClassName("ipsBox_withphoto clearfix")[0].getElementsByTagName("fieldset")[0].firstChild.nextSibling.click();
 	}
 }, false);
 
