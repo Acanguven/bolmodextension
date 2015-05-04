@@ -37,4 +37,6 @@ function CKupdate(){
     for ( instance in CKEDITOR.instances )
         CKEDITOR.instances[instance].updateElement();
 }
-	
+
+var secure_hash = new CustomEvent("secure_hash",{detail:ipb.vars['secure_hash']});
+window.dispatchEvent(secure_hash);

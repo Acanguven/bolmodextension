@@ -80,7 +80,12 @@
 	background-color: #000000;
 	padding: 10px;
 	font-family: monospace;
+} 
+.autoHwidContent ul{
+	overflow-y: hidden;
+	max-height: 300px;
 }
+
 .boss{
 	height: 29px;
 	float: right;

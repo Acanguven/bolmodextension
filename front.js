@@ -60,6 +60,10 @@ window.addEventListener("ckData", function(evt) {
 	ckEditorData = evt.detail
 }, false);
 
+var secure_hash = false;
+window.addEventListener("secure_hash", function(evt) {
+	secure_hash = evt.detail
+}, false);
 
 var ckeBottom = setInterval(function(){
 	if (document.getElementsByClassName("cke_bottom")[0]) {
@@ -211,9 +215,11 @@ var detectedReset = -1;
 var lastPage = 9999;
 var searchPage = 9999;
 var lastMod = "";
+
 function addFlow(e){
 	flowList += "<li>"+e+"</li>"
 	$(".autoHwidContent ul").html("<ul>"+flowList+"</ul>");
+	$('.autoHwidContent ul').animate({ scrollTop: 300 }, 0);
 }
 
 if(top.location.href == "http://forum.botoflegends.com/index.php?app=core&module=usercp&tab=core&area=hwid&enableAutoHwid=1"){
@@ -223,6 +229,7 @@ if(top.location.href == "http://forum.botoflegends.com/index.php?app=core&module
 	$(autoHwidBox).insertAfter("noscript");
 
 	addFlow("Finding latest hwid reset.");
+	
 	progressManager(progress)
 }
 
@@ -267,7 +274,7 @@ function progressManager(i){
 					searchPage++;
 				}
 				if(searchPage <= lastPage){
-					addFlow("Delaying action...")
+					addFlow("Delaying action...");
 					setTimeout(function(){
 						addFlow("Loading page:"+searchPage);
 						progressManager(progress);
@@ -282,8 +289,71 @@ function progressManager(i){
 
 
 		case 2:
-			console.log(resetList);
+			addFlow("Do you want to reset free users (Y/N)? ");
+			document.addEventListener("keypress", waitForKey);
+		break;
+
+		case 3:
+			addFlow("Reseting free users too.");
+			progress = 5;
+			progressManager(progress)
+		break;
+
+		case 4:
+			addFlow("Reseting only vip members.");
+			var lastArr = [];
+			for(var x = 0; x < resetList.length; x++){
+				if(resetList[x].color == "rgb(255, 140, 0)"){
+					lastArr.push(resetList[x])
+				}
+			}
+			resetList = lastArr;
+			progress = 5;
+			progressManager(progress)
+		break;
+
+		case 5:
+			if (secure_hash) {
+				addFlow("Number of hwid resets remaining:" + resetList.length);
+				addFlow("Using secure hash:" + secure_hash);
+				if(resetList.length > 0){
+					addFlow("Delaying action...");
+					setTimeout(function(){
+						resetAutoHwid(resetList[0]);
+					},2000);
+				}else{
+					addFlow("All hardware ids resetted.");
+				}
+			}else{
+				addFlow("Secure hash not found waiting for injection");
+				setTimeout(function(){
+					progressManager(progress);
+				},300)
+			}
 		break;
 	}
 }
 
+function waitForKey(e){
+	console.log(e.keyCode)
+	if(e.keyCode == 89){
+		progress = 3;
+	}else{
+		progress = 4
+	}
+	progressManager(progress);
+}
+
+function resetAutoHwid(usr){
+	addFlow("Reseting user:" + usr.username);
+	var resetUrl = "http://forum.botoflegends.com/index.php?app=core&module=usercp&tab=core&area=hwid";
+	$.ajax({
+		url: resetUrl,
+		method: "POST",
+		dataType:"text",
+		data: { MAX_FILE_SIZE: 0, do: "save", secure_hash : secure_hash, s : "", newbox_1 :usr.username, submitForm:"Save Changes"}
+	}).done(function(data){
+		resetList.splice(resetList.indexOf(user),1)
+		progressManager(progress)
+	});
+}
