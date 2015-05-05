@@ -37,3 +37,4 @@ function CKupdate(){
     for ( instance in CKEDITOR.instances )
         CKEDITOR.instances[instance].updateElement();
 }
+	

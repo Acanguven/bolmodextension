@@ -1,6 +1,6 @@
 {
 	"name": "Bot of Legends MOD Helper",
-	"version": "1.0.2",
+	"version": "1.0.9",
 	"description": "Bot of Legends MOD Helper",
 	"permissions": [
 		"downloads",
@@ -31,6 +31,6 @@
   	},
 	"offline_enabled": false,
 	"manifest_version": 2,
-	"web_accessible_resources": [ "icon.png","ISync_icon.png","injection.js"]
+	"web_accessible_resources": [ "icon.png","ISync_icon.png","injection.js","boss.png"]
 }
 
