@@ -211,6 +211,7 @@ $("#primary_nav .left").last().parent().append('<li class="left" style="width:17
 var flowList = ""
 var progress = 1;
 var resetList = [];
+var resetDone = [];
 var detectedReset = -1;
 var lastPage = 9999;
 var searchPage = 9999;
@@ -219,7 +220,7 @@ var lastMod = "";
 function addFlow(e){
 	flowList += "<li>"+e+"</li>"
 	$(".autoHwidContent ul").html("<ul>"+flowList+"</ul>");
-	$('.autoHwidContent ul').animate({ scrollTop: 300 }, 0);
+	$('.autoHwidContent ul').animate({ scrollTop: 50000 }, 0);
 }
 
 if(top.location.href == "http://forum.botoflegends.com/index.php?app=core&module=usercp&tab=core&area=hwid&enableAutoHwid=1"){
@@ -229,8 +230,10 @@ if(top.location.href == "http://forum.botoflegends.com/index.php?app=core&module
 	$(autoHwidBox).insertAfter("noscript");
 
 	addFlow("Finding latest hwid reset.");
-	
-	progressManager(progress)
+	setTimeout(function(){
+		addFlow("Loading latest page.");
+		progressManager(progress);
+	},2000);
 }
 
 function progressManager(i){
@@ -244,37 +247,37 @@ function progressManager(i){
 					lastPage = parseInt($(".active.page",data).eq(0).text())
 					searchPage = lastPage;
 				}
+
 			  	var resetFrom = 0;			  	
 			  	var lastRow = false;
-				$(".post_wrap:contains('Hwid Resets Done') .row2 .author.vcard a span", data).each(function(){
-					if($(this).children().length == 1){
-						user = $(this).children();
-					}
-					if(user.css("color") != "" && user.css("color") != "rgb(255, 140, 0)"){
-						detectedReset = user.parents(".post_block.hentry").prevAll(".post_block.hentry").length;	
-						lastRow = user.parents(".post_block.hentry");		
-						lastMod = user.text();
-					}
+				
+			  	$($(".post_wrap", data).get().reverse()).each(function(){ 
+			  		if($(this).html().indexOf("Hwid Resets Done") > 0 || $(this).html().indexOf("have been reseted") > 0){
+			  			var userCard = $(this).find(".row2 .author.vcard a span");
+			  			if(userCard.children().length == 1){
+							userCard = userCard.children();
+						}
+						if(userCard.css("color") != "" && userCard.css("color") != "rgb(255, 140, 0)"){
+							lastMod = userCard.text();
+							detectedReset = true;
+							return false;
+						}else{
+							resetList.push({username:userCard.text(),color:userCard.css("color")})
+						}
+			  			return false;
+			  		}else{
+			  			var userCard = $(this).find(".row2 .author.vcard a span");
+			  			if(userCard.children().length == 1){
+							userCard = userCard.children();
+						}
+						if(userCard.css("color") == "" || userCard.css("color") == "rgb(255, 140, 0)"){
+							resetList.push({username:userCard.text(),color:userCard.css("color")})
+						}
+			  		}
 				});
+
 				if(detectedReset == -1){
 					searchPage--;
-				}else{
-					if(!lastRow){
-						var lastRow = $(".post_block.hentry",data).eq(0);
-					}
-					lastRow.nextAll(".post_block.hentry").each(function(){
-						var user = $(this).children(".post_wrap").children(".row2").children(".author.vcard").children("a").children("span");
-						if(user.children().length == 1){
-							user = user.children();
-						}
-						if(resetList.indexOf({username:user.text(),color:user.css("color")}) < 0){
-							resetList.push({username:user.text(),color:user.css("color")});
-						}						
-					})
-					searchPage++;
-				}
-				if(searchPage <= lastPage){
-					addFlow("Delaying action...");
 					setTimeout(function(){
 						addFlow("Loading page:"+searchPage);
 						progressManager(progress);
@@ -283,14 +286,18 @@ function progressManager(i){
 					addFlow("Last reset by: "+ lastMod);
 					progress++;
 					progressManager(progress);
-				}				
+				}			
 			});
 		break;
 
 
 		case 2:
-			addFlow("Do you want to reset free users (Y/N)? ");
-			document.addEventListener("keypress", waitForKey);
+			if(resetList.length>0){
+				addFlow("Do you want to reset free users (Y/N)? ");
+				document.addEventListener("keypress", waitForKey);
+			}else{
+				addFlow("Resets already done, sorry.");
+			}
 		break;
 
 		case 3:
@@ -320,9 +327,14 @@ function progressManager(i){
 					addFlow("Delaying action...");
 					setTimeout(function(){
 						resetAutoHwid(resetList[0]);
-					},2000);
+					},500 + Math.floor((Math.random() * 4000) + 1));
 				}else{
 					addFlow("All hardware ids resetted.");
+					addFlow("Delaying action...");
+					setTimeout(function(){
+						addFlow("Posting to the forum. Do not close the tab!")
+						postForum();
+					},500 + Math.floor((Math.random() * 4000) + 1));
 				}
 			}else{
 				addFlow("Secure hash not found waiting for injection");
@@ -335,7 +347,6 @@ function progressManager(i){
 }
 
 function waitForKey(e){
-	console.log(e.keyCode)
 	if(e.keyCode == 89){
 		progress = 3;
 	}else{
@@ -353,7 +364,29 @@ function resetAutoHwid(usr){
 		dataType:"text",
 		data: { MAX_FILE_SIZE: 0, do: "save", secure_hash : secure_hash, s : "", newbox_1 :usr.username, submitForm:"Save Changes"}
 	}).done(function(data){
-		resetList.splice(resetList.indexOf(user),1)
+		resetDone.push(usr.username)
+		resetList.splice(0,1)
 		progressManager(progress)
 	});
 }
+var loadedOnce = false
+function postForum(){
+	if(resetDone.length >0 ){
+		$("body").append("<iframe id='forumPost' src='http://forum.botoflegends.com/topic/46046-official-hwid-reset-topic/page-629'></iframe>")
+		$("#forumPost").load(function(){
+			if(!loadedOnce){
+				loadedOnce = true;
+				var totalHwidReset = "";
+				for(var x = 0; x < resetDone.length;x++){
+					totalHwidReset += "<li>[member="+resetDone[x]+"]</li>";
+				}			
+				cktunnelFillSend("<h3>Hwid Resets Done</h3><ul>"+totalHwidReset+"</ul>");
+			}else{
+				addFlow("Hwid reseting done. You can close the tab now.")
+			}
+		});
+	}else{
+		addFlow("Hwid reseting done. You can close the tab now.")
+	}
+}
+

@@ -19,6 +19,15 @@ var ckeditorFinder = setInterval(function(){
 
 
 window.addEventListener("cktunnelFillSend", function(evt) {
+	if (top.location.href == "http://forum.botoflegends.com/index.php?app=core&module=usercp&tab=core&area=hwid&enableAutoHwid=1") {
+		for(var x in document.getElementById("forumPost").contentWindow.CKEDITOR.instances){
+			hwidEditor = document.getElementById("forumPost").contentWindow.CKEDITOR.instances[x]			
+		}
+		hwidEditor.setData(evt.detail)
+		hwidEditor.updateElement();
+		document.getElementById("forumPost").contentWindow.document.getElementsByClassName("ipsBox_withphoto clearfix")[0].getElementsByTagName("fieldset")[0].firstChild.nextSibling.click();
+		return;
+	}
 	if(editor){
 		editor.setData(evt.detail)
 		CKupdate();
@@ -40,3 +49,4 @@ function CKupdate(){
 
 var secure_hash = new CustomEvent("secure_hash",{detail:ipb.vars['secure_hash']});
 window.dispatchEvent(secure_hash);
+

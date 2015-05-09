@@ -43,6 +43,9 @@
 	float: left;
 	width: 84.5%;
 }
+#forumPost{
+	opacity: 0;
+}
 .saveTitle{
 	height: 22px !important;
 	background-color: white !important ;
