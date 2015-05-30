@@ -1,9 +1,9 @@
 var _CKEDITOR = false;
 var msgList = [];
-
 window.addEventListener("cktunnel", function(evt) {
 	_CKEDITOR = true
 }, false);
+
 
 var s = document.createElement('script');
 s.src = chrome.extension.getURL('injection.js');
@@ -390,3 +390,31 @@ function postForum(){
 	}
 }
 
+function checkShouts(){
+	$("[id^='shout-row-']").each(function(){
+		if(!$(this).attr("extensionWorked")){
+			var sId = $(this).attr("id").split("-")[2];
+			$(this).children("td:eq(2)").children(".desc").append('<img onclick="mod('+sId+');" class="sbModButton" id="sb'+sId+'" src="'+chrome.extension.getURL('mod.png')+'" alt="Mod extension plugin" style="margin-left: 6px;border-left: 1px solid #ccc;padding-left: 3px;cursor:pointer;">')
+			$(this).attr("extensionWorked","true");
+		}
+	});
+}
+var _shoutChecker = setInterval(checkShouts,100);
+
+
+var sbBox = '<div id="extensionSbBox"><span><</span><div class="sbOpt" onclick="delSb()">Delete Shout</div><div class="sbOpt" onclick="ban24()">Ban 24H</div><div class="sbOpt" onclick="ban48()">Ban 48H</div><div class="sbOpt" onclick="banPerma()">Ban Perma</div><div class="sbOpt" onclick="unban()">Unban</div></div>';
+
+
+$("body").append(sbBox);
+
+var _refresher = function(){
+	$("#shoutbox-refresh-button").click();
+	if($("#refreshTime").val() > 0){
+		setTimeout(_refresher,$("#refreshTime").val() * 1000);
+	}else{
+		setTimeout(_refresher,10000);
+	}	
+}
+
+$("#shoutbox-refresh-button").parent().append('<br><br>Auto Refresh after &nbsp;&nbsp;<input type="text" id="refreshTime" value="10" style="width:30px;"></input>&nbsp;&nbsp; seconds.')
+_refresher();

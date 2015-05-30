@@ -96,3 +96,41 @@
 	position: absolute;
 	top: 0px;
 }
+#extensionSbBox{
+	width: 100px;
+	height: 130px;
+	position: absolute;
+	top: 30px;
+	left: 30px;
+	background-color: white;
+	z-index: 999;
+	display: none;
+	border-right: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+}
+.sbOpt{
+	border-top:1px solid #ccc;
+	height: 20px;
+	padding-top: 5px;
+	text-align: center;
+	cursor: default;
+}
+.sbOpt:hover{
+	background-color: darkseagreen;
+	font-weight: bold;
+}
+#extensionSbBox span{
+	background-color: white;
+	width: 20px;
+	height: 19px;
+	position: absolute;
+	left: -20px;
+	top: 0px;
+	border-top-left-radius: 50%;
+	border-bottom-left-radius: 50%;
+	padding-top: 6px;
+	cursor: default;
+	border-top:1px solid #ccc;
+	border-bottom:1px solid #ccc;
+}
