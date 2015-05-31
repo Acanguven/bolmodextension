@@ -60,6 +60,9 @@ function CKupdate(){
 var secure_hash = new CustomEvent("secure_hash",{detail:ipb.vars['secure_hash']});
 window.dispatchEvent(secure_hash);
 
+var session = new CustomEvent("session",{detail:ipb.vars['session_id']});
+window.dispatchEvent(session);
+
 
 var targetSbId = false;
 var selectedParent = false;

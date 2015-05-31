@@ -65,6 +65,11 @@ window.addEventListener("secure_hash", function(evt) {
 	secure_hash = evt.detail
 }, false);
 
+var session = false;
+window.addEventListener("session", function(evt) {
+	session = evt.detail
+}, false);
+
 var ckeBottom = setInterval(function(){
 	if (document.getElementsByClassName("cke_bottom")[0]) {
 		
@@ -416,5 +421,67 @@ var _refresher = function(){
 	}	
 }
 
-$("#shoutbox-refresh-button").parent().append('<br><br>Auto Refresh after &nbsp;&nbsp;<input type="text" id="refreshTime" value="10" style="width:30px;"></input>&nbsp;&nbsp; seconds.')
+$("#shoutbox-refresh-button").parent().append('<br><br>Auto Refresh after &nbsp;&nbsp;<input type="text" id="refreshTime" value="10" style="width:30px;"></input>&nbsp;&nbsp; seconds.');
 _refresher();
+
+
+
+
+
+$("#shoutbox-refresh-button").parent().append('<hr style="display:block;"/><div id="botStatus">Shoutbox Plugin Status: Idle</div>');
+$("#botStatus").html('Shoutbox Plugin Status: Waiting for injection');
+
+var loadedWordList = false;
+function processShoutList(sList){
+	console.log(sList);
+}
+
+
+$.get("http://forum.botoflegends.com/topic/65685-shoutbox-restricted-words/#entry827967", function(data){
+	var list = data.split("<div class='bbc_spoiler_content' style=\"display:none;\">")[1].split("</div>")[0];
+	list = list.replace("<br>","").replace(/\+/g,"").replace("<br>","").replace("<p>","").replace("</p>","");
+	var _wL = list.split("\n");
+	var _w1L = [];
+	for(var x in _wL){
+		if(_wL[x].length > 0){
+			_w1L.push(_wL[x]);
+		}
+	}
+	var w2L = [];
+	for(var x in _w1L){
+		var r = _w1L[x].split(",");
+		if(r.length > 1){
+			w2L.push({word:r[0].replace(".",""),answer:r[1]});
+		}else{
+			w2L.push({word:r[0].replace(".",""),answer:false});
+		}
+	}
+	loadedWordList = w2L;
+});
+
+function _sbChecker(){
+	if(session != false){
+		if(loadedWordList){
+			var url = "http://forum.botoflegends.com/index.php?s="+session+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+secure_hash+"&type=getShouts&lastid=1&global=1";
+			$("#botStatus").html('Shoutbox Plugin Status: Working');
+			$.get(url,function(data){
+				var sList = [];
+				var sListTemp = data.split("</tr>");
+				for(var x = 0; x < sListTemp.length-1 ; x++){
+					var shoutId = sListTemp[x].split("<tr class='row2' id='shout-row-")[1].split("'")[0];
+					var shoutStartPos = sListTemp[x].indexOf("<span class='shoutbox_text'>")+ "<span class='shoutbox_text'>".length;
+					var endPos = sListTemp[x].lastIndexOf("</span>");
+					var shoutText = sListTemp[x].substring(shoutStartPos,endPos);
+					sList.push({id:shoutId,text:shoutText.replace(/[^\w\s]/gi, '').replace(/ /g, '')});
+				}
+				processShoutList(sList);
+			});
+		}else{
+			$("#botStatus").html('Shoutbox Plugin Status: Waiting for wordlist.');
+		}
+	}else{
+		$("#botStatus").html('Shoutbox Plugin Status: Waiting for injection.');
+	}
+}
+
+var _sbCheckerInterval = setInterval(_sbChecker,1500);
