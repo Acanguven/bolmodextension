@@ -99,8 +99,8 @@ function getCoords(elem) { // crossbrowser version
     return { top: Math.round(top), left: Math.round(left) };
 }
 
-function delSb(){
-	if(targetSbId){
+function delSb(autoBan){
+	if(targetSbId && typeof autoBan == "undefined"){
 		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
@@ -116,6 +116,25 @@ function delSb(){
 		  onFailure:  function(){
 		    document.getElementById("sb"+targetSbId).parentNode.childNodes[0].nodeValue = "Error deleting the shout";
 	    	document.getElementById("sb"+targetSbId).parentNode.style.color = "red";
+		  }
+		});
+	}
+	if(typeof autoBan != "undefined"){
+		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+autoBan;
+		new Ajax.Request( url, {
+		  method:  'get',
+		  onSuccess:  function(response){
+		    if(response.responseText.indexOf("OK") > -1){
+		    	document.getElementById("sb"+autoBan).parentNode.childNodes[0].nodeValue = "Shout Deleted";
+		    	document.getElementById("sb"+autoBan).parentNode.style.color = "green";
+		    }else{
+		    	document.getElementById("sb"+autoBan).parentNode.childNodes[0].nodeValue = response.responseText;
+	    		document.getElementById("sb"+autoBan).parentNode.style.color = "red";
+		    }
+		  },
+		  onFailure:  function(){
+		    document.getElementById("sb"+autoBan).parentNode.childNodes[0].nodeValue = "Error deleting the shout";
+	    	document.getElementById("sb"+autoBan).parentNode.style.color = "red";
 		  }
 		});
 	}
@@ -229,3 +248,6 @@ function postBanLog(member,hour,reason){
 	}
 }
 
+window.addEventListener("restrictedShout", function(evt) {
+	delSb(evt.detail.id);
+}, false);

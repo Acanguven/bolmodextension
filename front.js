@@ -433,13 +433,20 @@ $("#botStatus").html('Shoutbox Plugin Status: Waiting for injection');
 
 var loadedWordList = false;
 function processShoutList(sList){
-	console.log(sList);
+	for(var x = 0; x < sList.length; x++){
+		for(var y = 0; y < loadedWordList.length; y++){
+			if(sList[x].text.toLowerCase().indexOf(loadedWordList[y].word.toLowerCase()) > -1 ){
+				var event = new CustomEvent("restrictedShout",{detail:{id:sList[x].id,text:sList[x].text}});
+				window.dispatchEvent(event);
+			}
+		}
+	}
 }
 
 
 $.get("http://forum.botoflegends.com/topic/65685-shoutbox-restricted-words/#entry827967", function(data){
 	var list = data.split("<div class='bbc_spoiler_content' style=\"display:none;\">")[1].split("</div>")[0];
-	list = list.replace("<br>","").replace(/\+/g,"").replace("<br>","").replace("<p>","").replace("</p>","");
+	list = list.replace(/<br>/g,"").replace(/\+/g,"").replace(/<\/br>/g,"").replace(/<p>/g,"").replace(/<\/p>/g,"");
 	var _wL = list.split("\n");
 	var _w1L = [];
 	for(var x in _wL){
@@ -451,9 +458,9 @@ $.get("http://forum.botoflegends.com/topic/65685-shoutbox-restricted-words/#entr
 	for(var x in _w1L){
 		var r = _w1L[x].split(",");
 		if(r.length > 1){
-			w2L.push({word:r[0].replace(".",""),answer:r[1]});
+			w2L.push({word:r[0].replace(/\./g,"").replace(/ /g,""),answer:r[1]});
 		}else{
-			w2L.push({word:r[0].replace(".",""),answer:false});
+			w2L.push({word:r[0].replace(/\./g,"").replace(/ /g,""),answer:false});
 		}
 	}
 	loadedWordList = w2L;
@@ -468,11 +475,24 @@ function _sbChecker(){
 				var sList = [];
 				var sListTemp = data.split("</tr>");
 				for(var x = 0; x < sListTemp.length-1 ; x++){
+					var isMod = sListTemp[x].split('<span itemprop="name">')[1];
+					if(isMod[0] == "<"){
+						isMod = isMod.split(">")[0];
+						if(isMod.indexOf("color:Darkorange") > -1 || isMod.indexOf("color:green;") > -1 || isMod.indexOf("color:DarkOrchid;") > -1){
+							isMod = false;
+						}else{
+							isMod = true;
+						}
+					}else{
+						isMod = false;
+					}
 					var shoutId = sListTemp[x].split("<tr class='row2' id='shout-row-")[1].split("'")[0];
 					var shoutStartPos = sListTemp[x].indexOf("<span class='shoutbox_text'>")+ "<span class='shoutbox_text'>".length;
 					var endPos = sListTemp[x].lastIndexOf("</span>");
 					var shoutText = sListTemp[x].substring(shoutStartPos,endPos);
-					sList.push({id:shoutId,text:shoutText.replace(/[^\w\s]/gi, '').replace(/ /g, '')});
+					if(!isMod){
+						sList.push({id:shoutId,text:shoutText.replace(/[^\w\s]/g, '').replace(/ /g, '')});
+					}
 				}
 				processShoutList(sList);
 			});
