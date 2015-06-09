@@ -428,7 +428,7 @@ _refresher();
 
 
 
-$("#shoutbox-refresh-button").parent().append('<hr style="display:block;"/><div id="botStatus">Shoutbox Plugin Status: Idle</div>');
+$("#shoutbox-refresh-button").parent().append('<hr style="display:block;"/><div id="botStatus">Shoutbox Plugin Status: Idle</div><hr style="display:block;"/>');
 $("#botStatus").html('Shoutbox Plugin Status: Waiting for injection');
 
 var loadedWordList = false;
@@ -438,6 +438,7 @@ function processShoutList(sList){
 			if(sList[x].text.toLowerCase().indexOf(loadedWordList[y].word.toLowerCase()) > -1 ){
 				var event = new CustomEvent("restrictedShout",{detail:{id:sList[x].id,text:sList[x].text}});
 				window.dispatchEvent(event);
+				$("#shoutbox-refresh-button").parent().append('<div>Removed: '+sList[x].text+'</div>');
 			}
 		}
 	}
@@ -504,4 +505,4 @@ function _sbChecker(){
 	}
 }
 
-var _sbCheckerInterval = setInterval(_sbChecker,1500);
+//var _sbCheckerInterval = setInterval(_sbChecker,1500);

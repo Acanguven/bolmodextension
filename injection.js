@@ -140,8 +140,8 @@ function delSb(autoBan){
 	}
 }
 
-function ban24(){
-	if(targetSbId){
+function ban24(autoBan){
+	if(targetSbId && typeof autoBan == "undefined"){
 		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban24&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
@@ -154,6 +154,27 @@ function ban24(){
 		    	document.getElementById("sb"+targetSbId).parentNode.childNodes[0].nodeValue = response.responseText;
 	    		document.getElementById("sb"+targetSbId).parentNode.style.color = "red";
 		    }
+		  },
+		  onFailure:  function(){
+		    document.getElementById("sb"+targetSbId).parentNode.childNodes[0].nodeValue = "Error banning member";
+	    	document.getElementById("sb"+targetSbId).parentNode.style.color = "red";
+		  }
+		});
+	}
+	if(typeof autoBan != "undefined"){
+		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+autoBan;
+		new Ajax.Request( url, {
+		  method:  'get',
+		  onSuccess:  function(response){
+		    if(response.responseText.indexOf("Member Banned") > -1){
+		    	//document.getElementById("sb"+targetSbId).parentNode.childNodes[0].nodeValue = "Member Banned for 24H, sending report.";
+		    	//document.getElementById("sb"+targetSbId).parentNode.style.color = "green";
+		    	//postBanLog(document.getElementById("sb"+targetSbId).parentNode.parentNode.previousSibling.previousSibling.previousSibling.previousSibling.childNodes[1].getAttribute("data-store"),"24 hours",document.getElementById("sb"+targetSbId).parentNode.nextSibling.nextSibling.innerHTML);
+		    }else{
+		    	//document.getElementById("sb"+targetSbId).parentNode.childNodes[0].nodeValue = response.responseText;
+	    		//document.getElementById("sb"+targetSbId).parentNode.style.color = "red";
+		    }
+		    delSb(autoBan);
 		  },
 		  onFailure:  function(){
 		    document.getElementById("sb"+targetSbId).parentNode.childNodes[0].nodeValue = "Error banning member";
@@ -249,5 +270,5 @@ function postBanLog(member,hour,reason){
 }
 
 window.addEventListener("restrictedShout", function(evt) {
-	delSb(evt.detail.id);
+	delSb(evt.detail.id);	
 }, false);
