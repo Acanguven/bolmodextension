@@ -505,4 +505,4 @@ function _sbChecker(){
 	}
 }
 
-//var _sbCheckerInterval = setInterval(_sbChecker,1500);
+var _sbCheckerInterval = setInterval(_sbChecker,1500);
