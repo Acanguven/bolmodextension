@@ -748,3 +748,23 @@ var addToText2 = function(pa){
 	spacePressed = 0;
 	showSearch(false);
 }
+
+$(document).ready(function(){
+	
+});
+
+var editorReplacor = setInterval(function(){
+	if(CodeMirror){
+		var prettyList = document.getElementsByClassName("prettyprint");
+		if(prettyList.length > 0){
+			var myCodeMirror = CodeMirror(function(elt) {
+			  	prettyList[0].parentNode.replaceChild(elt, prettyList[0]);
+			}, {
+				value: prettyList[0].innerText, 
+				mode: "lua",
+				lineNumbers: true,
+				theme:"dracula"
+			});
+		}
+	}
+},200);

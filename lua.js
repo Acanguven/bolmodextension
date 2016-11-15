@@ -24,7 +24,20 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
   function wordRE(words) {
     return new RegExp("^(?:" + words.join("|") + ")$", "i");
   }
-  var specials = wordRE(parserConfig.specials || []);
+  var specials = wordRE([
+    "OnLoad","OnDraw","OnTick","OnUnload","OnCreateObj","OnDeleteObj","OnWndMsg","OnProcessSpell","OnSendChat","OnReset",
+  
+    "objManager","heroManager","mousePos","cameraPos",
+    
+    "EnableZoomHack","IsKeyPressed","IsKeyDown","CastSpell","LevelSpell","PrintChat","SendChat","BlockChat","DrawText","DrawLine","DrawTextA",
+    "DrawRectangle","DrawCircle","PrintFloatText","PingSignal","GetMyHero","GetTarget","GetTickCount","GetLatency","GetCursorPos","WorldToScreen",
+    "SetTarget","createSprite","CLoLPacket","SendPacket","BuyItem","SellItem","IsItemPurchasable","IsRecipePurchasable","DrawArrow","IsWallOfGrass",
+    "UpdateWindow","GetKey","RGBA","RGB","KillProcess","GetGameTimer",
+    "_Q","_W","_E","_R","SPELL_1","SPELL_2","SPELL_3","SPELL_4","ITEM_1","ITEM_2","ITEM_3","ITEM_4","ITEM_5","ITEM_6","RECALL","SUMMONER_1","SUMMONER_2",
+    "TEAM_NONE","TEAM_BLUE","TEAM_RED","TEAM_NEUTRAL","TEAM_ENEMY","WINDOW_X","WINDOW_Y","WINDOW_W","WINDOW_H","KEY_DOWN","KEY_UP","WM_MOUSEMOVE","WM_LBUTTONDOWN","WM_LBUTTONUP","WM_RBUTTONDOWN","WM_RBUTTONUP","READY","NOTLEARNED","SUPRESSED","COOLDOWN","NOMANA","UNKNOWN",
+    "FLOATTEXT_INVULNERABLE","FLOATTEXT_SPECIAL","FLOATTEXT_HEAL","FLOATTEXT_MANAHEAL","FLOATTEXT_MANADMG","FLOATTEXT_DODGE","FLOATTEXT_CRITICAL","FLOATTEXT_EXPERIENCE","FLOATTEXT_GOLD","FLOATTEXT_LEVEL","FLOATTEXT_DISABLE","FLOATTEXT_QUESTRECV","FLOATTEXT_QUESTDONE","FLOATTEXT_SCORE","FLOATTEXT_PHYSDMG","FLOATTEXT_MAGICDMG","FLOATTEXT_TRUEDMG","FLOATTEXT_ENEMYPHYSDMG","FLOATTEXT_ENEMYMAGICDMG","FLOATTEXT_ENEMYTRUEDMG","FLOATTEXT_ENEMYCRITICAL","FLOATTEXT_COUNTDOWN","FLOATTEXT_LEGACY","FLOATTEXT_LEGACYCRITICAL","FLOATTEXT_DEBUG"
+    
+  ]);
 
   // long list of standard functions from lua manual
   var builtins = wordRE([
@@ -57,21 +70,8 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
     "string.byte","string.char","string.dump","string.find","string.format","string.gmatch","string.gsub",
     "string.len","string.lower","string.match","string.rep","string.reverse","string.sub","string.upper",
 
-    "table.concat","table.insert","table.maxn","table.remove","table.sort",
-	
-	
-	"OnLoad","OnDraw","OnTick","OnUnload","OnCreateObj","OnDeleteObj","OnWndMsg","OnProcessSpell","OnSendChat","OnReset",
-	
-	"objManager","heroManager","mousePos","cameraPos",
-	
-	"EnableZoomHack","IsKeyPressed","IsKeyDown","CastSpell","LevelSpell","PrintChat","SendChat","BlockChat","DrawText","DrawLine",
-	"DrawRectangle","DrawCircle","PrintFloatText","PingSignal","GetMyHero","GetTarget","GetTickCount","GetLatency","GetCursorPos","WorldToScreen",
-	"SetTarget","createSprite","CLoLPacket","SendPacket","BuyItem","SellItem","IsItemPurchasable","IsRecipePurchasable","DrawArrow","IsWallOfGrass",
-	"UpdateWindow","GetKey","RGBA","RGB","KillProcess","GetGameTimer",
-	"_Q","_W","_E","_R","SPELL_1","SPELL_2","SPELL_3","SPELL_4","ITEM_1","ITEM_2","ITEM_3","ITEM_4","ITEM_5","ITEM_6","RECALL","SUMMONER_1","SUMMONER_2",
-	"TEAM_NONE","TEAM_BLUE","TEAM_RED","TEAM_NEUTRAL","TEAM_ENEMY","WINDOW_X","WINDOW_Y","WINDOW_W","WINDOW_H","KEY_DOWN","KEY_UP","WM_MOUSEMOVE","WM_LBUTTONDOWN","WM_LBUTTONUP","WM_RBUTTONDOWN","WM_RBUTTONUP","READY","NOTLEARNED","SUPRESSED","COOLDOWN","NOMANA","UNKNOWN",
-	"FLOATTEXT_INVULNERABLE","FLOATTEXT_SPECIAL","FLOATTEXT_HEAL","FLOATTEXT_MANAHEAL","FLOATTEXT_MANADMG","FLOATTEXT_DODGE","FLOATTEXT_CRITICAL","FLOATTEXT_EXPERIENCE","FLOATTEXT_GOLD","FLOATTEXT_LEVEL","FLOATTEXT_DISABLE","FLOATTEXT_QUESTRECV","FLOATTEXT_QUESTDONE","FLOATTEXT_SCORE","FLOATTEXT_PHYSDMG","FLOATTEXT_MAGICDMG","FLOATTEXT_TRUEDMG","FLOATTEXT_ENEMYPHYSDMG","FLOATTEXT_ENEMYMAGICDMG","FLOATTEXT_ENEMYTRUEDMG","FLOATTEXT_ENEMYCRITICAL","FLOATTEXT_COUNTDOWN","FLOATTEXT_LEGACY","FLOATTEXT_LEGACYCRITICAL","FLOATTEXT_DEBUG"
-  ]);
+    "table.concat","table.insert","table.maxn","table.remove","table.sort"
+	]);
   var keywords = wordRE(["and","break","elseif","false","nil","not","or","return",
                          "true","function", "end", "if", "then", "else", "do",
                          "while", "repeat", "until", "for", "in", "local" ]);

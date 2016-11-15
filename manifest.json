@@ -1,6 +1,6 @@
 {
 	"name": "Bot of Legends MOD Helper",
-	"version": "2.21",
+	"version": "2.22",
 	"description": "Bot of Legends MOD Helper",
 	"permissions": [
 		"downloads",
@@ -17,10 +17,14 @@
 		"js": [
 			"ckeditor.js",
 			"jquery.min.js",
-			"front.js"
+			"front.js",
+			"codemirror.js",
+			"lua.js"
 		],
 		"css":[
-			"main.css"
+			"main.css",
+			"codemirror.css",
+			"dracula.css"
 		],
 		"run_at": "document_end",
 		"all_frames": false
@@ -31,6 +35,6 @@
   	},
 	"offline_enabled": false,
 	"manifest_version": 2,
-	"web_accessible_resources": [ "icon.png","ISync_icon.png","injection.js","boss.png","mod.png","jquery.min.js"]
+	"web_accessible_resources": [ "icon.png","ISync_icon.png","injection.js","boss.png","mod.png","jquery.min.js","codemirror.js","codemirror.css"]
 }
 

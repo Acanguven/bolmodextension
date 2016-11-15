@@ -18,10 +18,12 @@ var ckeditorFinder = setInterval(function(){
 			editor = CKEDITOR.instances[x]
 			var updateCK = new CustomEvent("ckData",{detail:CKEDITOR.instances[x].getData()});
             window.dispatchEvent(updateCK);
-			CKEDITOR.instances[x].document.on('keyup', function(event) {
-                var updateCK = new CustomEvent("ckData",{detail:CKEDITOR.instances[x].getData()});
-                window.dispatchEvent(updateCK);
-            });
+            if(CKEDITOR.instances[x].document){
+				CKEDITOR.instances[x].document.on('keyup', function(event) {
+	                var updateCK = new CustomEvent("ckData",{detail:CKEDITOR.instances[x].getData()});
+	                window.dispatchEvent(updateCK);
+	            });
+            }
 			break;
 		}
 		attachShittyEvent();
@@ -166,11 +168,14 @@ function CKupdate(){
 var secure_hash = new CustomEvent("secure_hash",{detail:ipb.vars['secure_hash']});
 window.dispatchEvent(secure_hash);
 
+
 var session = new CustomEvent("session",{detail:ipb.vars['session_id']});
 window.dispatchEvent(session);
 
-var member_name = new CustomEvent("member_name",{detail:ipb.shoutbox['member_name']});
-window.dispatchEvent(member_name);
+if(ipb.shoutbox){
+	var member_name = new CustomEvent("member_name",{detail:ipb.shoutbox['member_name']});
+	window.dispatchEvent(member_name);
+}
 
 
 var targetSbId = false;
