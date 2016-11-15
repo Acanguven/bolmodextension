@@ -1,4 +1,16 @@
+var cursorX;
+var cursorY;
+window.onmousemove = function(e){
+    cursorX = e.pageX;
+    cursorY = e.pageY;
+}
+
+
 var editor = false;
+var searchStarted = false;
+var searchString = "";
+var spacePressed = 0;
+var ckInstanceOnSearch = false;
 var ckeditorFinder = setInterval(function(){
 	if(typeof CKEDITOR != "undefined"){
 		var event = new CustomEvent("cktunnel");
@@ -12,14 +24,108 @@ var ckeditorFinder = setInterval(function(){
             });
 			break;
 		}
+		attachShittyEvent();
 		window.dispatchEvent(event);	  
 		clearInterval(ckeditorFinder);
     }
 },100)
 
+function attachShittyEvent(){
+	for(var x in CKEDITOR.instances){
+		CKEDITOR.instances[x].document.on( 'keyup', function (event) {
+			if(event.data.$.keyCode == 8 && searchStarted){
+				searchString = searchString.substring(0, searchString.length-1);
+				updateSearch(searchString);
+			}
+		});
+		CKEDITOR.instances[x].document.on( 'keypress', function (event) {
+		    if ( event.data.$.keyCode == 64 ){
+		    	if(!searchStarted){
+		    		searchString = "";
+		    		searchStarted = true;
+		    		ckInstanceOnSearch =  CKEDITOR.instances[x];
+		    		spacePressed = 0;
+		    	}else{
+		    		searchString = "";
+		    		spacePressed = 0;
+		    	}
+		    	showSearch(searchStarted);
+		    }else{
+		    	if (searchStarted) {
+			    	searchString = searchString + String.fromCharCode(event.data.$.keyCode);
+			    	if(event.data.$.keyCode == 32){
+			    		if(spacePressed === 1){
+				    		searchStarted = false;
+				    		ckInstanceOnSearch =  false;
+				    		spacePressed = 0;
+				    		showSearch(searchStarted);
+			    		}else{
+			    			spacePressed++;
+			    		}
+			    	}else{
+			    		if (searchString.length >= 3){
+			    			updateSearch(searchString);
+			    		}
+			    	}
+		    	}
+		    }
+		    
+		});
+	}
+}
+
+function showSearch(show){
+	if(show){
+		document.getElementById("searchUsersList").innerHTML = "";
+		var x = cursorX + 'px';
+		var y = cursorY + 'px';
+		document.getElementById("searchBoxUser").style.display = "block";
+		document.getElementById("searchBoxUser").style.left = x;
+		document.getElementById("searchBoxUser").style.top = y;
+	}else{
+		document.getElementById("searchBoxUser").style.display = "none";
+	}
+}
+
+function updateSearch(){
+	var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&app=core&module=ajax&section=findnames&do=get-member-names&secure_key="+ipb.vars['secure_hash']+"&name="+searchString;
+	new Ajax.Request( url, {
+		method:  'get',
+		onSuccess:  function(response){
+			var responseObject = JSON.parse(response.responseText);
+			var innerHtml = "";
+			if(!responseObject.error && Object.prototype.toString.call(responseObject) == "[object Object]"){
+				for(var x in responseObject){
+					if (responseObject[x] && responseObject[x].name){
+						var user = responseObject[x];
+						innerHtml += "<li onclick='addToText(\""+user.name+"\")' style='height:25px;width:100%;border-bottom: 1px solid #ccc;cursor:pointer;'><img src='"+user.img+"' style='float:left;width:25px;height:25px;'/><div style='float:left;margin-top: 5px;margin-left: 5px;'>"+user.showas+"</div></li>"
+					}
+				}
+				document.getElementById("searchUsersList").innerHTML = innerHtml;
+			}
+			
+		}
+	});
+}
+
+window["addToText"] = function(pa){
+	if (ckInstanceOnSearch){
+		var text = ckInstanceOnSearch.getData();
+		var newText = text.replace("@"+searchString,"[member="+pa+"]");
+		ckInstanceOnSearch.setData(newText,attachShittyEvent);
+		searchStarted = false;
+		searchString = "";
+		spacePressed = 0;
+		ckInstanceOnSearch = false;
+		showSearch(false);
+	}
+}
+
+
+
 
 window.addEventListener("cktunnelFillSend", function(evt) {
-	if (top.location.href == "http://forum.botoflegends.com/index.php?app=core&module=usercp&tab=core&area=hwid&enableAutoHwid=1") {
+	if (top.location.href == "https://forum.botoflegends.com/index.php?app=core&module=usercp&tab=core&area=hwid&enableAutoHwid=1") {
 		for(var x in document.getElementById("forumPost").contentWindow.CKEDITOR.instances){
 			hwidEditor = document.getElementById("forumPost").contentWindow.CKEDITOR.instances[x]			
 		}
@@ -63,6 +169,9 @@ window.dispatchEvent(secure_hash);
 var session = new CustomEvent("session",{detail:ipb.vars['session_id']});
 window.dispatchEvent(session);
 
+var member_name = new CustomEvent("member_name",{detail:ipb.shoutbox['member_name']});
+window.dispatchEvent(member_name);
+
 
 var targetSbId = false;
 var selectedParent = false;
@@ -101,7 +210,7 @@ function getCoords(elem) { // crossbrowser version
 
 function delSb(autoBan){
 	if(targetSbId && typeof autoBan == "undefined"){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+targetSbId;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -120,7 +229,7 @@ function delSb(autoBan){
 		});
 	}
 	if(typeof autoBan != "undefined"){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+autoBan;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+autoBan;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -142,7 +251,7 @@ function delSb(autoBan){
 
 function ban24(autoBan){
 	if(targetSbId && typeof autoBan == "undefined"){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban24&modtype=shout&id="+targetSbId;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban24&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -162,7 +271,7 @@ function ban24(autoBan){
 		});
 	}
 	if(typeof autoBan != "undefined"){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+autoBan;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=delete&modtype=shout&id="+autoBan;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -186,7 +295,7 @@ function ban24(autoBan){
 
 function ban48(){
 	if(targetSbId){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban48&modtype=shout&id="+targetSbId;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban48&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -209,7 +318,7 @@ function ban48(){
 
 function banPerma(){
 	if(targetSbId){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban&modtype=shout&id="+targetSbId;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=ban&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -233,7 +342,7 @@ function banPerma(){
 
 function unban(){
 	if(targetSbId){
-		var url = "http://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=unban&modtype=shout&id="+targetSbId;
+		var url = "https://forum.botoflegends.com/index.php?s="+ipb.vars['session_id']+"&&app=shoutbox&module=ajax&section=coreAjax&secure_key="+ipb.vars['secure_hash']+"&type=mod&action=performCommand&command=unban&modtype=shout&id="+targetSbId;
 		new Ajax.Request( url, {
 		  method:  'get',
 		  onSuccess:  function(response){
@@ -258,7 +367,7 @@ function postBanLog(member,hour,reason){
 		var iframe = document.createElement('iframe');
 		iframe.id = "forumPost"
 		iframe.style.display = "none";
-		iframe.src = "http://forum.botoflegends.com/topic/14459-shoutbox-bans/page-25";
+		iframe.src = "https://forum.botoflegends.com/topic/14459-shoutbox-bans/page-25";
 		document.body.appendChild(iframe);
 		iframe.onload = function(){
 			logPostLoaded = true;
@@ -272,3 +381,5 @@ function postBanLog(member,hour,reason){
 window.addEventListener("restrictedShout", function(evt) {
 	delSb(evt.detail.id);	
 }, false);
+
+
